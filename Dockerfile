@@ -22,8 +22,10 @@ RUN apt-get update \
         openssl \
         libzip-dev \
         unixodbc-dev \
-        mariadb-client \
-    && rm -r /var/lib/apt/lists/* 
+        mariadb-client
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ \
