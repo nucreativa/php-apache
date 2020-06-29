@@ -2,8 +2,7 @@
 FROM php:7.4-apache
 
 #install all the system dependencies and enable PHP modules 
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
@@ -12,6 +11,7 @@ RUN apt-get update \
         libmcrypt-dev \
         zlib1g-dev \
         libicu-dev \
+        libonig-dev \
         g++ \
         unixodbc-dev \
         libxml2-dev \
@@ -22,18 +22,18 @@ RUN apt-get update \
         openssl \
         libzip-dev \
         unixodbc-dev \
-        mariadb-client \
-        gnupg
+        gnupg \
+        mariadb-client
 
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
+        --install-dir=/usr/local/bin \
+        --filename=composer
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ \
     && docker-php-ext-configure pdo_dblib --with-libdir=/lib/x86_64-linux-gnu \
     && docker-php-ext-configure intl \
-    && pecl install sqlsrv-5.6.1 \
-    && pecl install pdo_sqlsrv-5.6.1 \
     && pecl install redis \
     && pecl install memcached \
     && pecl install xdebug \
@@ -54,10 +54,21 @@ RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/i
             ftp \
             bcmath \
     && docker-php-ext-enable \
-            sqlsrv \
-            pdo_sqlsrv \
             redis \
             memcached \
             opcache \
             imagick \
             xdebug
+
+# Install APCu and APC backward compatibility
+RUN pecl install apcu \
+    && pecl install apcu_bc-1.0.5 \
+    && docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini \
+    && docker-php-ext-enable apc --ini-name 20-docker-php-ext-apc.ini
+
+# Clean repository
+RUN apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www
+RUN chown -R www-data:www-data /var/www
