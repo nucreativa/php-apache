@@ -1,13 +1,33 @@
 version: '3'
 
 services:
-    php-apache:
+    php-apache-latest:
         build:
             context: .
-        container_name: php-apache
+        container_name: nucreativa\php-apache:latest
         expose:
             - 80
             - 443
         ports:
             - 8080:80
             - 443:443
+#    php-apache-74:
+#        build:
+#            context: .
+#        container_name: nucreativa\php-apache:7.4
+#        expose:
+#            - 80
+#            - 443
+#        ports:
+#            - 8080:80
+#            - 443:443
+#    php-apache-73:
+#        build:
+#            context: ./7.3/
+#        container_name: nucreativa\php-apache:7.3
+#        expose:
+#            - 80
+#            - 443
+#        ports:
+#            - 8080:80
+#            - 443:443

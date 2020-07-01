@@ -1,7 +1,7 @@
 #start with our base image (the foundation) - version 7.4
 FROM php:7.4-apache
 
-#install all the system dependencies and enable PHP modules 
+#install all the system dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \

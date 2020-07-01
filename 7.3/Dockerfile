@@ -1,7 +1,7 @@
 #start with our base image (the foundation) - version 7.4
-FROM php:7.4-apache
+FROM php:7.3-apache
 
-#install all the system dependencies and enable PHP modules 
+#install all the system dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
@@ -31,7 +31,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
         --filename=composer
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ \
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-configure pdo_dblib --with-libdir=/lib/x86_64-linux-gnu \
     && docker-php-ext-configure intl \
     && pecl install redis \
