@@ -1,5 +1,17 @@
-#start with our base image (the foundation) - version 7.4
+#start with our base image (the foundation)
 FROM php:7.3-apache
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+		apt-utils \
+        wget \
+        gnupg \
+        git \
+        unzip \
+        curl \
+        apt-transport-https
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list
 
 #install all the system dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -25,6 +37,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         gnupg \
         mariadb-client
 
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
         --install-dir=/usr/local/bin \
@@ -34,6 +48,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-configure pdo_dblib --with-libdir=/lib/x86_64-linux-gnu \
     && docker-php-ext-configure intl \
+	&& pecl install sqlsrv-5.6.1 \
+	&& pecl install pdo_sqlsrv-5.6.1 \
     && pecl install redis \
     && pecl install memcached \
     && pecl install xdebug \
@@ -54,6 +70,8 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
             ftp \
             bcmath \
     && docker-php-ext-enable \
+			sqlsrv \
+			pdo_sqlsrv \
             redis \
             memcached \
             opcache \
